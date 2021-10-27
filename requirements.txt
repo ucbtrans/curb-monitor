@@ -1,0 +1,7 @@
+# pip install -r requirements.txt
+
+## training model
+
+#yolov5
+
+yolov5>=6.0.4
