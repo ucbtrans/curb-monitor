@@ -3,7 +3,7 @@
 """
 Script for extracting training raw images from bus dashcam recording
 Usage:
-    $ python .\scripts\extract_training_raw_pictures.py --source ..\capstone\sida_training_data --class 3 4 --conf-thres 0.6 --weights .\models\pre_process_model\weights\best.pt --img 640 --sample-interval 24 
+    $ python .\scripts\extract_training_raw_pictures.py --class 3 4 --conf-thres 0.6 --img 640 --sample-interval 24  --nosave --weights .\models\pre_process_model\weights\best.pt --source ..\capstone\sida_training_data
 """
 
 
