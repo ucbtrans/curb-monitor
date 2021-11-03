@@ -1,0 +1,7 @@
+car
+bus
+other_truck
+uhaul_truck
+fedex_truck
+ups_truck
+amazon_truck
