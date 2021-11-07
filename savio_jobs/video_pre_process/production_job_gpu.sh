@@ -27,10 +27,10 @@
 
 #readme
 #please define the following variable
-VIDEOS_ABS_PATH=path_to_data_folder
+export VIDEOS_ABS_PATH=path_to_data_folder
 
 module load python gcc opencv cmake
 pip install --user --upgrade pip setuptools wheel && pip install --user -r ~/curb-monitor/requirements.txt
 
 # run job
-cd ~/curb-monitor && python .\scripts\extract_training_raw_pictures.py --class 3 4 --conf-thres 0.6 --img 640 --sample-interval 24  --nosave --weights .\models\pre_process_model\weights\best.pt --source $VIDEOS_ABS_PATH
+cd ~/curb-monitor && python ./scripts/extract_training_raw_pictures.py --class 3 4 --conf-thres 0.6 --img 640 --sample-interval 24  --nosave --weights ./models/pre_process_model/weights/best.pt --source $VIDEOS_ABS_PATH
