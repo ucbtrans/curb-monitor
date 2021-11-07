@@ -26,4 +26,4 @@
 ## Command(s) to run (example):
 module load python gcc opencv cmake
 pip install --user --upgrade pip setuptools wheel && pip install --user -r ~/yolov5/requirements.txt
-cd yolov5 && python  train.py --resume
+cd ~/curb-monitor && python ./training/bdd100k/train.py

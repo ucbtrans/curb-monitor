@@ -21,9 +21,9 @@
 #SBATCH --gres=gpu:GTX2080TI:1
 #
 # Wall clock limit:
-#SBATCH --time=72:00:00
+#SBATCH --time=36:00:00
 #
 ## Command(s) to run (example):
 module load python gcc opencv cmake
 pip install --user --upgrade pip setuptools wheel && pip install --user -r ~/curb-monitor/requirements.txt
-cd curb-monitor && python ./training/curb/train.py
+cd ~/curb-monitor && python ./training/curb/train.py

@@ -26,4 +26,4 @@
 ## Command(s) to run (example):
 module load python gcc opencv cmake
 pip install --user --upgrade pip setuptools wheel && pip install --user -r ~/curb-monitor/requirements.txt
-cd curb-monitor && python ./training/bdd100k/train.py
+cd ~/curb-monitor && python ./training/bdd100k/train.py
