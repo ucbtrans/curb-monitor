@@ -19,7 +19,7 @@ def main(arguments):
         train.run(resume = True)
     else:    
         folder_path = os.path.dirname(__file__)
-        train.run(imgsz=640, batch=4, epochs = 300, data= os.path.join(folder_path, 'bdd100k.yaml') , weights='yolov5s.pt')
+        train.run(imgsz=640, batch=4, epochs = 300, data= os.path.join(folder_path, 'curb.yaml') , weights='yolov5s.pt')
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

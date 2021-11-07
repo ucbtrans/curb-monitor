@@ -1,6 +1,6 @@
 #!/bin/bash
 # Job name:
-#SBATCH --job-name=curb-model-training-gpu-prod
+#SBATCH --job-name=pre-video-process-job
 #
 # Account:
 #SBATCH --account=fc_control
@@ -26,4 +26,8 @@
 ## Command(s) to run (example):
 module load python gcc opencv cmake
 pip install --user --upgrade pip setuptools wheel && pip install --user -r ~/curb-monitor/requirements.txt
-cd curb-monitor && python ./training/curb/train.py
+
+# copy data
+
+# run job
+cd curb-monitor && python .\scripts\extract_training_raw_pictures.py --class 3 4 --conf-thres 0.6 --img 640 --sample-interval 24  --nosave --weights .\models\pre_process_model\weights\best.pt --source ..\capstone\sida_training_data
