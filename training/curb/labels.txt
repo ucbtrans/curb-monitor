@@ -5,3 +5,4 @@ uhaul_truck
 fedex_truck
 ups_truck
 amazon_truck
+usps_truck
