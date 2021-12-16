@@ -1,0 +1,20 @@
+To extract the gps data and determine if a video is partially on bancroft, use extract_gps.py like so:
+	
+>python3 extract_gps.py data > pct_bancroft.txt
+
+(Note that for the extract_gps.py script, the exiftool executable should be in the same directory as the script itself.)
+
+Where data is the folder containing all of the mp4 files to be checked. pct_bancroft.txt will display each filename on a line, a True/False value on whether or not
+any portion was on bancroft, and what percentage of the video is on bancroft. The file should look something like this:
+
+...
+105DCIM.mp4 True - 0.53400
+106DCIM.mp4 False - 0.0000
+...
+
+From this, we can extract all of the lines that contain 'True' using the following line:
+>grep -E "True" | pct_bancroft.txt > bancroft_vids.txt
+
+Which serves as the input into the extract_bancvids.py script, which takes a folder and formatted text file and separates the videos that do and 
+don't contain content on bancroft
+>python3 extract_bancvids.py data bancroft_vids.txt
