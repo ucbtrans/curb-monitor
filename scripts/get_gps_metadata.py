@@ -8,6 +8,8 @@ import os, sys, shutil
 import subprocess
 import string
 
+
+file_path = os.path.dirname(__file__)
 # Converts latitude and longitude strings into numerical (decimal) versions of 
 # lat and long
 def convert_latlong(in_str):
@@ -18,10 +20,15 @@ def convert_latlong(in_str):
 # Returns the dataframe containing the GPS data as well as the measured fps from
 # the metadata
 def extract_gps_to_dataframe(filename, fps=30):
+    if sys.platform == 'win32':
+        exiftool_path = str(Path(file_path + "/executables/exiftool.exe").resolve())
+    else:
+        exiftool_path = str(Path(file_path + "/executables/exiftool/exiftool").resolve())
+    
     if not filename.endswith(".MP4") and not filename.endswith(".mp4"):
         print("Error: Filename doesn't end with .MP4/.mp4")
         exit(1)
-    out_process = subprocess.run(args = ["./exiftool.exe",  "-a", "\"-gps*\"", \
+    out_process = subprocess.run(args = [exiftool_path,  "-a", "\"-gps*\"", \
          "-ee", filename], universal_newlines = True, stdout = subprocess.PIPE)
     output = out_process.stdout
     output_lines = output[output.index("Sample Time"):].split('\n')
@@ -36,18 +43,23 @@ def extract_gps_to_dataframe(filename, fps=30):
     fps = frame_rate_line
 
 
+
     lats = []
     longs = []
     speeds = []
     stimes = []
     sdurations = []
     datetimes = []
+    
+    count = 0
     for line in output_lines:
         if len(line) == 0:
             continue
         split_line = line.split(':')
         split_line[1] = split_line[1][1:]
+        
         if line.startswith('Sample Time'):
+            count +=1
             if len(split_line) == 2:
                 stimes.append(float(split_line[1][:-2]))
             else:
@@ -61,7 +73,7 @@ def extract_gps_to_dataframe(filename, fps=30):
         if line.startswith('GPS Speed'):
             speeds.append(split_line[1])
         if line.startswith('GPS Date/Time'):
-            datetimes.append(creation_date + time_delta * int(stimes[-1]))
+            datetimes.append(str(creation_date + time_delta * int(stimes[-1])))
     gps_dict = {'lat': lats, 
                 'long': longs, 
                 'speed': speeds,
@@ -83,7 +95,14 @@ def extract_gps_to_dataframe(filename, fps=30):
 # This means that a 60 second video has indices 0 through 59 - if we have 30 
 # fps, the bounds of this method's frames range from 0 to 59*30 (or 0 to 1770)
 def find_nearest_frame(dict, frame_number, fps):
-    index = int(np.round(frame_number/fps, 0))
+    index = int(np.floor(frame_number/fps))
+    max_index = len(dict['lat']) - 1
+    for key in dict:
+        if len(dict[key]) - 1 < max_index:
+            max_index = len(dict[key]) - 1
+    if index > max_index:
+        index = max_index
+    
     extracted_row = {
                     'lat': dict['lat'][index], 
                     'long': dict['long'][index], 
@@ -99,11 +118,12 @@ def find_nearest_frame(dict, frame_number, fps):
 # This function returns a nested dictionary where the key is the filename in the 
 # folder and the value is the dictionary of gps data for the given file
 def extract_gps_data_in_folders(folder_name):
-    folder_path = Path(folder_name)
+    folder_path = Path(folder_name).resolve()
     gps_data_from_folder = {}
     for filename in os.listdir(folder_path):
-        gps_data_from_folder[filename], _ = extract_gps_to_dataframe\
-            (folder_name + "/" + filename)
+        if(filename.lower().endswith(".mp4")):
+            gps_data_from_folder[filename], _ = extract_gps_to_dataframe\
+                (str(folder_path) + "/" + filename)
     return gps_data_from_folder
 
 # Given a filename, a frame number, and a nested gps dictionary (from the above 
@@ -119,6 +139,7 @@ def find_nearest_frame_from_folder(gps_folder_dict, filename, frame_number,\
 # Example Test:
 # gps_dict, fps = extract_gps_to_dataframe("test_vids/GRMN0142.MP4")
 # print(find_nearest_frame(gps_dict, fps, 788))
-folder_gps_dict = extract_gps_data_in_folders("test_vids")
-print(find_nearest_frame_from_folder( folder_gps_dict, "GRMN0142.MP4", 788))
-print(find_nearest_frame_from_folder( folder_gps_dict, "GRMN0143.MP4", 33))
+# folder_gps_dict = extract_gps_data_in_folders("..\capstone")
+# print(folder_gps_dict.keys())
+# print(find_nearest_frame_from_folder( folder_gps_dict, "GRMN0991.mp4", 1779))
+#print(find_nearest_frame_from_folder( folder_gps_dict, "GRMN0144.MP4", 33))
