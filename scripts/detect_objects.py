@@ -17,6 +17,8 @@ import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 
+from get_gps_metadata import extract_gps_data_in_folders, find_nearest_frame_from_folder
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 
@@ -46,6 +48,8 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
         save_orginal_image=True # Save original picture
         ):
     source = str(source)
+    folder_gps_dict = extract_gps_data_in_folders(source)
+
     save_debug_img =  debug and not source.endswith('.txt')  # save inference images
 
     if isinstance(imgsz, int):
@@ -87,7 +91,7 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
     if save_csv:
         csv_path = str(save_dir / 'csv' / 'detected.csv')  # detected.csv
 
-        csv_header = ['time', 'latitude', 'longitude', 'original_file', 'image_file', 'obj_class_name', 'obj_class',  'x', 'y', 'w', 'h', 'confidences']
+        csv_header = ['time', 'latitude', 'longitude', 'speed', 'original_file', 'image_file', 'obj_class_name', 'obj_class',  'x', 'y', 'w', 'h', 'confidences']
 
         # open the file in the write mode
         csv_f = open(csv_path, 'w', encoding='UTF8', newline='')
@@ -153,10 +157,12 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
                 for *xyxy, conf, cls in reversed(det):
                     if save_csv:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        #csv_header = ['time', 'latitude', 'longitude', 'original_file', 'image_file', 'obj_class_name', 'obj_class',  'x', 'y', 'w', 'h', 'confidences']
+                        #csv_header = ['time', 'latitude', 'longitude', 'speed', 'original_file', 'image_file', 'obj_class_name', 'obj_class',  'x', 'y', 'w', 'h', 'confidences']
                         # create the csv writer
 
-                        csv_row = ['time', 'latitude', 'logitude', p.name, save_original_name, names[int(cls)], int(cls), xywh[0], xywh[1], xywh[2], xywh[3], conf.item()]
+                        frame_info = find_nearest_frame_from_folder( folder_gps_dict, p.name, frame)
+
+                        csv_row = [frame_info['datetime'], frame_info['converted_lat'], frame_info['converted_long'], frame_info['speed'], p.name, save_original_name, names[int(cls)], int(cls), xywh[0], xywh[1], xywh[2], xywh[3], conf.item()]
                         csv_writer.writerow(csv_row)
 
                     if save_debug_img or view_img:  # Add bbox to image
