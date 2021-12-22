@@ -9,4 +9,9 @@
     ```
     rclone copy your_s3_config_name:curbside-data/vid_folder_123 /global/scratch/users/your_savio_username/vid_folder_123
     ```
-1. update the data folder path under savio_jobs\video_detect\production_job_gpu.sh
+
+    for example
+    ```
+     rclone copy s3_frank:curbside-data/bus_dashcam_videos /global/scratch/users/sidali/bus_dashcam_videos
+    ```
+1. update the data folder path under curb-monitor/savio_jobs/video_detect/production_job_gpu.sh
