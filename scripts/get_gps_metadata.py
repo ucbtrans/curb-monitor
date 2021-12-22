@@ -28,7 +28,7 @@ def extract_gps_to_dataframe(filename, fps=30):
     if not filename.endswith(".MP4") and not filename.endswith(".mp4"):
         print("Error: Filename doesn't end with .MP4/.mp4")
         exit(1)
-    out_process = subprocess.run(args = [exiftool_path,  "-a", "\"-gps*\"", \
+    out_process = subprocess.run(args = [exiftool_path,  "-a", \
          "-ee", filename], universal_newlines = True, stdout = subprocess.PIPE)
     output = out_process.stdout
     output_lines = output[output.index("Sample Time"):].split('\n')
@@ -56,6 +56,10 @@ def extract_gps_to_dataframe(filename, fps=30):
         if len(line) == 0:
             continue
         split_line = line.split(':')
+        if(len(split_line) <= 1):
+            continue
+        if(len(split_line[1]) <= 1):
+            continue
         split_line[1] = split_line[1][1:]
         
         if line.startswith('Sample Time'):
