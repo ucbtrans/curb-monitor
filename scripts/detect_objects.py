@@ -156,14 +156,15 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
                     if save_csv:  # Write to file
-                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        #csv_header = ['time', 'latitude', 'longitude', 'speed', 'original_file', 'image_file', 'obj_class_name', 'obj_class',  'x', 'y', 'w', 'h', 'confidences']
-                        # create the csv writer
-
-                        frame_info = find_nearest_frame_from_folder( folder_gps_dict, p.name, frame)
-
-                        csv_row = [frame_info['datetime'], frame_info['converted_lat'], frame_info['converted_long'], frame_info['speed'], p.name, save_original_name, names[int(cls)], int(cls), xywh[0], xywh[1], xywh[2], xywh[3], conf.item()]
-                        csv_writer.writerow(csv_row)
+                        try:
+                            xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
+                            #csv_header = ['time', 'latitude', 'longitude', 'speed', 'original_file', 'image_file', 'obj_class_name', 'obj_class',  'x', 'y', 'w', 'h', 'confidences']
+                            # create the csv writer
+                            frame_info = find_nearest_frame_from_folder( folder_gps_dict, p.name, frame)
+                            csv_row = [frame_info['datetime'], frame_info['converted_lat'], frame_info['converted_long'], frame_info['speed'], p.name, save_original_name, names[int(cls)], int(cls), xywh[0], xywh[1], xywh[2], xywh[3], conf.item()]
+                            csv_writer.writerow(csv_row)
+                        except:
+                            print("Failed to get frame info" + p.name + " " +frame)
 
                     if save_debug_img or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
