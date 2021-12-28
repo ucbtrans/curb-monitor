@@ -126,8 +126,12 @@ def extract_gps_data_in_folders(folder_name):
     gps_data_from_folder = {}
     for filename in os.listdir(folder_path):
         if(filename.lower().endswith(".mp4")):
-            gps_data_from_folder[filename], _ = extract_gps_to_dataframe\
-                (str(folder_path) + "/" + filename)
+            try:
+                gps_data_from_folder[filename], _ = extract_gps_to_dataframe\
+                    (str(folder_path) + "/" + filename)
+            except:
+                print("Failed to extract gps info from file " + filename)
+
     return gps_data_from_folder
 
 # Given a filename, a frame number, and a nested gps dictionary (from the above 
