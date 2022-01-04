@@ -135,7 +135,7 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
 
             save_path = str(save_dir / p.name)  # img.jpg
             save_original_name = p.stem + ('' if dataset.mode == 'image' else f'_{frame}') + '.jpg'
-            save_original_path = str(save_dir / 'images' / p.stem) + save_original_name  # f_frame.jpg
+            save_original_path = str(save_dir / 'images') + save_original_name  # f_frame.jpg
             s += '%gx%g ' % img.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             annotator = Annotator(im0, line_width=3, example=str(names))
