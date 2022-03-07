@@ -4,6 +4,7 @@ import numpy as np
 import os, sys, shutil
 import subprocess
 import string
+import pandas as pd
 from get_gps_metadata import *
 from datetime import datetime
 from functools import cmp_to_key
@@ -31,7 +32,7 @@ def assign_endpoint_str(long, lat):
         return "BSE"
     elif long > 122.25994 and long < 122.25999:
         return "SHS"
-    elif long > 122.266 and long < 122.268:
+    elif long > 122.2665 and long < 122.268:
         return "SHE"
     return None
 
@@ -45,28 +46,48 @@ def comp_tuples(loc1, loc2):
     else:
         return 0
 
-def calculate_avg_spd(loc_list):
+def calculate_avg_spd(loc_list, df):
     segment_lookup = {"College Ave": [], "Bus Stop": [], "Shattuck": []}
     loc_order = ["CAS", "CAE", "BSS", "BSE", "SHS", "SHE"]
+    curr_detection_index = 0
+    output_df = pd.DataFrame(columns=["segment", "speed", "detection", "obj_class", "detection_ts", "start_ts", "end_ts", "start_filename", "end_filename"])
+
     for i in range(1, len(loc_list)):
-        if loc_list[i] == "CAS":
+        if loc_list[i][2] not in ["CAE", "BSE", "SHE"]:
+            #print("Not end of segment: " + loc_list[])
             continue
         curr_loc_ind = loc_order.index(loc_list[i][2])
         if loc_list[i-1][2] != loc_order[curr_loc_ind - 1]:
             continue
         travel_time = (loc_list[i][0] - loc_list[i-1][0]).total_seconds()/3600
-
+        # Tuple format (timestamp, filename, location string - CAE, BSE)
         dist_const = 1
+        segment = None
         if loc_list[i][2] == "CAE":
             dist_const = 0.14
-            segment_lookup["College Ave"].append( dist_const/travel_time)
+            segment = "College Ave"          
         if loc_list[i][2] == "BSE":
             dist_const = 0.15
-            segment_lookup["Bus Stop"].append( dist_const/travel_time)
+            segment = "Bus Stop"
         if loc_list[i][2] == "SHE":
             dist_const = 0.44
-            segment_lookup["Shattuck"].append( dist_const/travel_time)
-    print(segment_lookup)
+            segment = "Shattuck"
+        segment_lookup[segment].append( dist_const/travel_time)
+        
+        segment_detection = False
+        while curr_detection_index < df.shape[0] and df.iloc[curr_detection_index, :]["datetime"] < loc_list[i][0]:
+            if df.iloc[curr_detection_index,:]["datetime"] > loc_list[i-1][0]:
+               output_df.loc[output_df.shape[0]] = [segment, dist_const/travel_time, "true",\
+                   df["obj_class_name"][curr_detection_index], df["time"][curr_detection_index], loc_list[i-1][0], loc_list[i][0], loc_list[i-1][1], loc_list[i][1]]
+               segment_detection = True
+            curr_detection_index += 1
+        if not segment_detection:
+            output_df.loc[output_df.shape[0]] = [segment, dist_const/travel_time, "false",\
+                None, None, loc_list[i-1][0], loc_list[i][0], loc_list[i-1][1], loc_list[i][1]]
+
+
+    # print(segment_lookup)
+    output_df.to_csv(Path('./out.csv'))
     for key, list in segment_lookup.items():
         # print(np.array(list))
         if list:
@@ -76,8 +97,12 @@ def calculate_avg_spd(loc_list):
     return segment_lookup
 
 
+if len(sys.argv) != 3:
+    print("Usage: python3 extract_speed.py <directory of videos> <detections csv filename>")
+    exit(1)
 video_dir = sys.argv[1]
 vid_path = Path(video_dir)
+detections_filename = sys.argv[2]
 # out_path = vid_path/Path("out")
 # if os.path.exists(out_path):
 #     shutil.rmtree(out_path)
@@ -89,6 +114,8 @@ endpoint_lookup = {"CAS": [], "CAE": [], "BSS": [], "BSE": [], "SHS": [], "SHE":
 
 for filename in os.listdir(video_dir):
     # look up specfic longitude values from lookup table and record their timestamp
+    if not filename in video_lookup_table.keys():
+        continue
     curr_dict = video_lookup_table[filename]
     # print(curr_dict["converted_long"])
     for index, long in enumerate(curr_dict["converted_long"]):
@@ -107,4 +134,7 @@ zipped_list = sorted(zipped_list, key=cmp_to_key(comp_tuples))
 # Loop through the list (now ordered by timestamp), and if we see two consecutive 'endpoints' (such as CAE/CAS or BSA/BSE), calculate the average speed for the segment
 # This method prints out and returns a dictionary of each segment and the calculated speed - can be further modified to include timestamps, or averaged to see average
 # speed for each segment, divided depending on vehicle detection, etc.
-calculate_avg_spd(zipped_list)
+detections_df = pd.read_csv(detections_filename)
+detections_df["datetime"] = pd.to_datetime(detections_df['time'])
+#print(detections_df.head())
+calculate_avg_spd(zipped_list, detections_df)
