@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Class of Vehicle</th>
+        <th>x,y</th>
+        <th>w,h</th>
+        <th>Speed (mph)</th>
+        <th>Vehicle on Bus Lane?</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Box Area</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for vehicle in vehicles %}
+        <tr>
+          <td>{{ vehicle.date }}</td>
+          <td>{{ vehicle.time }}</td>
+          <td>{{ vehicle.obj_class_name }}</td>
+          <td>{{ vehicle.x }},{{ vehicle.y }}</td>
+          <td>{{ vehicle.w }},{{ vehicle.h }}</td>
+          <td>{{ vehicle.speed }}</td>
+          <td>{{ vehicle.is_on_bus_line }}</td>
+          <td>{{ vehicle.latitude }}</td>
+          <td>{{ vehicle.longitude }}</td>
+          <td>{{ vehicle.box_area }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function () {
+      $('#data').DataTable();
+    });
+  </script>
+{% endblock %}
