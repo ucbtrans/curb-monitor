@@ -49,3 +49,30 @@ Curb monitoring system. A prototype.
         n=$((`find . -maxdepth 1 -type f | wc -l`/$dir_size+1))
         for i in `seq 1 $n`; do mkdir -p "$dir_name$i"; find . -type f -maxdepth 1 | head -n $dir_size | xargs -i mv "{}" "$dir_name$i"; done
         ```
+    1. switch to savio login node
+        ```
+        ssh yourusername@hpc.brc.berkeley.edu
+        ```
+    1. update the data folder path under curb-monitor/savio_jobs/video_detect/production_job_gpu.sh
+        ```
+        module load nano
+        nano savio_jobs/video_detect/production_job_gpu.sh
+        ```
+
+    1. go to curb-monitor/scripts/executables and clone the exiftool tool:
+        ```
+        cd scripts/executables
+        git clone https://github.com/exiftool/exiftool.git
+        ```
+    1. run the sbatch job
+        ```
+        sbatch ./savio_jobs/video_detect/production_job_gpu.sh
+        ```
+    1. check your job
+        ```
+        sq
+        ```
+    1. cancel your job 
+        ```
+        scancel <jobid>
+        ```

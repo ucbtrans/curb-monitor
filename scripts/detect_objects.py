@@ -45,7 +45,7 @@ def run(weights='yolov5s.pt',  # model.pt path(s)
         classes=None,  # filter by class: --class 0, or --class 0 2 3
         project='runs/detect',  # save results to project/name
         name='exp',  # save results to project/name
-        save_orginal_image=True # Save original picture
+        save_orginal_image=False # Save original picture
         ):
     source = str(source)
     folder_gps_dict = extract_gps_data_in_folders(source)
@@ -225,7 +225,7 @@ def parse_opt():
     parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
     parser.add_argument('--project', default='runs/detect', help='save results to project/name')
     parser.add_argument('--name', default='exp', help='save results to project/name')
-    parser.add_argument('--save-orginal-image', default=True, help='Save original picture')
+    parser.add_argument('--save-orginal-image', default=False, help='Save original picture')
     opt = parser.parse_args()
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
     print_args(FILE.stem, opt)
