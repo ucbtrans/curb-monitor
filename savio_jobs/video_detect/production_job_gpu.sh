@@ -21,7 +21,7 @@
 #SBATCH --gres=gpu:GTX2080TI:1
 #
 # Wall clock limit:
-#SBATCH --time=12:00:00
+#SBATCH --time=72:00:00
 #
 ## Command(s) to run (example):
 
@@ -34,4 +34,4 @@ module load python gcc opencv cmake
 pip install --user --upgrade pip setuptools wheel && pip install --user -r ~/curb-monitor/requirements.txt
 
 # run job
-cd ~/curb-monitor && python ./scripts/detect_objects.py --project $OUT_PUT_PATH --save-csv --class 1 3 4 5 6 --conf-thres 0.25 --img 640  --weights ./models/curb_prod_model/weights/best.pt --save-orginal-image false --source $VIDEOS_ABS_PATH
+cd ~/curb-monitor && python ./scripts/detect_objects.py --project $OUT_PUT_PATH --save-csv --class 1 3 4 5 6 --conf-thres 0.25 --img 640  --weights ./models/curb_prod_model/weights/best.pt --source $VIDEOS_ABS_PATH
