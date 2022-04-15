@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 import boto3
 from moto import mock_dynamodb2
 import models
+import pandas as pd
 
 app = Flask(__name__)
 import db_connect as dynamodb
@@ -72,6 +73,19 @@ def find_objects_by_filter():  # put application's code here
     endingPosition = args.get("endingPosition", default="", type=str)
     return 'Received ' + begin_day + "," + end_day
 
+
+@app.route('/number_of_detections')
+def number_of_detections():
+    table = dynamodb.resource.Table('detected_objects')
+    response = dynamodb.client.execute_statement(Statement="SELECT * FROM detected_objects")
+    data = response['Items']
+    list_of_objects = []
+    for lst in data:
+        list_of_objects.append(from_dynamodb_to_json(lst))
+    df = pd.DataFrame(list_of_objects)
+    total_count = df['obj_class_name'].value_counts()
+    response_message = total_count.to_json()
+    return jsonify(response_message)
 
 if __name__ == '__main__':
     app.run()
