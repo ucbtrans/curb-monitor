@@ -4,6 +4,8 @@ import boto3
 from moto import mock_dynamodb2
 import models
 import pandas as pd
+import datetime as dt
+import json
 
 app = Flask(__name__)
 import db_connect as dynamodb
@@ -38,6 +40,71 @@ def find_detected_objects():
         "total_count": len(data)
     }
     return jsonify(response_message)
+
+@app.route('/speed_data')
+def find_speed_data():
+    table = dynamodb.resource.Table('speed_data')
+    begin_day = request.args["begin_day"]
+    end_day = request.args["end_day"]
+    begin_time = request.args["begin_time"]
+    end_time = request.args["end_time"]
+
+    # Convert timestamps
+    begin_day =  dt.datetime.strptime(begin_day, "%m/%d/%Y")
+    begin_time = dt.datetime.strptime(begin_time, "%H:%M:%S")
+    begin_ts = dt.datetime.combine(begin_day, begin_time.time())
+    begin_ts = begin_ts.isoformat() + "Z"
+
+    end_day =  dt.datetime.strptime(end_day, "%m/%d/%Y")
+    end_time = dt.datetime.strptime(end_time, "%H:%M:%S")
+    end_ts = dt.datetime.combine(end_day, end_time.time())
+    end_ts = end_ts.isoformat() + "Z"
+
+    print(begin_ts)
+    print(end_ts)
+
+    response = table.scan(
+        FilterExpression=Attr("start_ts").between(begin_ts, end_ts)
+    )
+    data = response['Items']
+    print(type(data))
+
+    ca_speed = 0
+    bus_speed = 0
+    shattuck_speed = 0
+
+   # list_of_objects = json.loads(data)
+    # for lst in data:
+    #     print(jsonify(lst))
+    #     list_of_objects.append(from_dynamodb_to_json(lst))
+
+    if len(data) == 0:
+        return jsonify({        
+            "College Ave": ca_speed,
+            "Bus Stops": bus_speed,
+            "Shattuck": shattuck_speed,
+            "Unit": "mph"})
+
+    df = pd.DataFrame.from_records(data)
+    grouped = df.groupby(['segment','start_ts'])['speed'].first().groupby(['segment']).mean()
+    print(grouped)
+    if 'College Ave' in grouped.index:
+        ca_speed = grouped['College Ave']
+    if 'Bus Stop' in grouped.index:
+        bus_speed = grouped['Bus Stop']
+    if 'Shattuck' in grouped.index:
+        shattuck_speed = grouped['Shattuck']
+
+
+    response_message = {
+        "College Ave": ca_speed,
+        "Bus Stops": bus_speed,
+        "Shattuck": shattuck_speed,
+        "Unit": "mph"
+    }
+    return jsonify(response_message)
+
+
 
 @app.route('/get_all_objects')
 def find_objects():
