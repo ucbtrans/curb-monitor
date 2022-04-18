@@ -1,0 +1,233 @@
+swagger: "2.0"
+info:
+  description: "This is the documentation for our Vehicle Detection API for Active Curb Management Project"
+  version: "1.0.0"
+  title: "Vehicle Detection API"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "petstore.swagger.io"
+basePath: "/v2"
+schemes:
+- "https"
+paths:
+  /detected_objects:
+    get:
+      tags:
+      - "detected objects"
+      summary: "Returns Detected vehicle objects based on multiple filters"
+      description: "Returns Detected vehicle objects based on multiple filters"
+      operationId: "findObjectsByFilter"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "begin_day"
+        in: "query"
+        description: "starting day for detection occurance range"
+        required: false
+        type: "string"
+      - name: "end_day"
+        in: "query"
+        description: "ending day for detection occurance range"
+        required: false
+        type: "string"
+      - name: "begin_time"
+        in: "query"
+        description: "starting time for detection occurance range"
+        required: false
+        type: "string"
+      - name: "end_time"
+        in: "query"
+        description: "ending time for detection occurance range"
+        required: false
+        type: "string"
+      - name: "startingPosition"
+        in: "query"
+        description: "start position for bounding box of interest"
+        required: false
+        type: "string"
+      - name: "endingPosition"
+        in: "query"
+        description: "end position for bounding box of interest"
+        required: false
+        type: "string"  
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/detected_vehicles"
+        "400":
+          description: "Invalid query parameters"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: "Internal Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /average_speed:
+    get:
+      tags:
+      - "detected objects"
+      summary: "Returns average speed of bus carrying the dashcam for each Bancroft segment during the inputed date and time ranges"
+      description: "Returns Detected vehicle objects based on multiple filters. The full range of our data and therefore the valid range for queries is between 10/4/2021  2:16:00 and 3/9/2022 18:25:00"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "begin_day"
+        in: "query"
+        description: "starting time time period"
+        required: true
+        type: "string"
+      - name: "end_day"
+        in: "query"
+        description: "ending time time period"
+        required: true
+        type: "string"
+      - name: "begin_time"
+        in: "query"
+        description: "starting time time period"
+        required: true
+        type: "string"
+      - name: "end_time"
+        in: "query"
+        description: "ending time time period"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/average_speed_response"
+        "400":
+          description: "Invalid query parameters"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: "Internal Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /video:
+    get:
+      tags:
+      - "detected objects"
+      summary: "Returns Detected vehicle objects based on multiple filters"
+      description: "Returns Detected vehicle objects based on multiple filters"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "video_filename"
+        in: "query"
+        description: "name of video file"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          #type: "video/mp4"
+        "400":
+          description: "Invalid query parameters"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: "Internal Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /number_of_detections:
+    get:
+      tags:
+      - "detected objects"
+      summary: "returns number of detected instances for each vehicle type during a certain time frame"
+      description: "Returns Detected vehicle objects based on multiple filters"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "start_time"
+        in: "query"
+        description: "starting timestamp"
+        required: true
+        type: "string"
+      - name: "end_time"
+        in: "query"
+        description: "ending timestamp"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          #type: "video/mp4"
+        "400":
+          description: "Invalid query parameters"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: "Internal Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  
+definitions:
+  detected_vehicles:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items: 
+          $ref: "#/definitions/detected_vehicle"
+      last_evaluated_key:
+        type: "object"
+      total_count:
+        type : "integer"
+        
+  average_speed_response:
+    type: "object"
+    properties:
+      college_ave:
+        type: "number"
+      bus_stop:
+        type: "number"
+      shattuck:
+        type: "number"
+      unit: 
+        type: "string"
+  detected_vehicle:
+    type : "object"
+    properties:
+      weekday:
+        type: "string"
+      date: 
+        type: "string"
+      box_h:
+        type: "number"
+      box_x:
+        type: "number"
+      box_w:
+        type: "number"
+      box_y:
+        type: "number"
+      box_area:
+        type: "number"
+      time: 
+        type: "string"
+      is_one_bus_line:
+        type: "boolean"
+      obj_class_name:
+        type: "string"
+      longitude: 
+        type: "string"
+      latitide: 
+        type: "string"
+      speed: 
+        type: "number"
+      confidences: 
+        type: "number"
+      video_filename:
+        type: "string"
+        
+  ErrorResponse:
+    type: "object"
+    properties:
+      error_description: 
+        type: "string"
+      error_status: 
+        type: "string"
