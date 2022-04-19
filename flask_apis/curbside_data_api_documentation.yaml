@@ -15,15 +15,17 @@ paths:
     get:
       tags:
       - "detected objects"
-      summary: "Returns Detected vehicle objects based on multiple filters"
-      description: "Returns Detected vehicle objects based on multiple filters"
+      summary: "Returns Detected vehicle objects based on start date and time to end date and time"
+      description: "Returns Detected vehicle objects based on start date and time to end date and time Date and time  
+      Date format : MM/DD/YY Month-Day-Year with leading zeros (02/17/2009)
+      Time Format : hh:mm:ss (23:59:59)"
       operationId: "findObjectsByFilter"
       produces:
       - "application/json"
       parameters:
       - name: "begin_day"
         in: "query"
-        description: "starting day for detection occurance range"
+        description: "starting day for detection occurance range in"
         required: false
         type: "string"
       - name: "end_day"
@@ -43,14 +45,6 @@ paths:
         type: "string"
       - name: "startingPosition"
         in: "query"
-        description: "start position for bounding box of interest"
-        required: false
-        type: "string"
-      - name: "endingPosition"
-        in: "query"
-        description: "end position for bounding box of interest"
-        required: false
-        type: "string"  
       responses:
         "200":
           description: "successful operation"
