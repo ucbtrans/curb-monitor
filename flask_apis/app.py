@@ -6,6 +6,7 @@ import models
 import pandas as pd
 import datetime as dt
 import json
+import constants
 
 app = Flask(__name__)
 import db_connect as dynamodb
@@ -21,25 +22,47 @@ def from_dynamodb_to_json(item):
 def find_detected_objects():
     begin_day = request.args["begin_day"]
     end_day = request.args["end_day"]
-    #begin_time = request.args["begin_time"]
-    #end_time = request.args["end_time"]
-    #startingPosition = request.args["startingPosition"]
-    #endingPosition = request.args["endingPosition"]
+    begin_time = request.args["begin_time"]
+    end_time = request.args["end_time"]
+    begin_ts = str(dt.datetime.strptime(begin_day, "%m/%d/%Y").date()) + " " + begin_time;
+    end_ts = str(dt.datetime.strptime(end_day, "%m/%d/%Y").date()) + " " + end_time;
+    print(begin_ts + "," + end_ts)
     table = dynamodb.resource.Table('detected_objects')
     response = table.scan(
-        FilterExpression=Attr("time").between(begin_day, end_day)
+        FilterExpression=Attr("time").between(begin_ts, end_ts)
     )
     data = response['Items']
 
     list_of_vehicles = []
-    # for lst in data:
-    #     list_of_vehicles.append(from_dynamodb_to_json(lst))
+    for lst in data:
+        temp_dict = {}
+        for key in constants.return_object_keys:
+            temp_dict[constants.return_object_keys[key]] = lst[key]
+        list_of_vehicles.append(temp_dict)
 
     response_message = {
-        "data": data,
-        "total_count": len(data)
+        "data": list_of_vehicles,
+        "total_count": len(list_of_vehicles)
     }
     return jsonify(response_message)
+
+
+@app.route('/display_detected_objects')
+def display_detected_objects():
+    begin_day = request.args["begin_day"]
+    end_day = request.args["end_day"]
+    begin_time = request.args["begin_time"]
+    end_time = request.args["end_time"]
+    begin_ts = str(dt.datetime.strptime(begin_day, "%m/%d/%Y").date()) + " " + begin_time;
+    end_ts = str(dt.datetime.strptime(end_day, "%m/%d/%Y").date()) + " " + end_time;
+    print(begin_ts + "," + end_ts)
+    table = dynamodb.resource.Table('detected_objects')
+    response = table.scan(
+        FilterExpression=Attr("time").between(begin_ts, end_ts)
+    )
+    
+    data = response['Items']
+    return render_template('all_vehicles.html', title='', vehicles=data)
 
 @app.route('/speed_data')
 def find_speed_data():
