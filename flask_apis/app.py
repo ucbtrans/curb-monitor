@@ -158,13 +158,27 @@ def find_objects_1():
 
 @app.route('/number_of_detections')
 def number_of_detections():
+    begin_day = request.args["begin_day"]
+    end_day = request.args["end_day"]
+    begin_time = request.args["begin_time"]
+    end_time = request.args["end_time"]
+    begin_ts = str(dt.datetime.strptime(begin_day, "%m/%d/%Y").date()) + " " + begin_time;
+    end_ts = str(dt.datetime.strptime(end_day, "%m/%d/%Y").date()) + " " + end_time;
+    print(begin_ts + "," + end_ts)
     table = dynamodb.resource.Table('detected_objects')
-    response = dynamodb.client.execute_statement(Statement="SELECT * FROM detected_objects")
+    response = table.scan(
+        FilterExpression=Attr("time").between(begin_ts, end_ts)
+    )
     data = response['Items']
-    list_of_objects = []
+
+    list_of_vehicles = []
     for lst in data:
-        list_of_objects.append(from_dynamodb_to_json(lst))
-    df = pd.DataFrame(list_of_objects)
+        temp_dict = {}
+        for key in constants.return_object_keys:
+            temp_dict[constants.return_object_keys[key]] = lst[key]
+        list_of_vehicles.append(temp_dict)
+    
+    df = pd.DataFrame(list_of_vehicles)
     total_count = df['obj_class_name'].value_counts()
     response_message = total_count.to_json()
     return jsonify(response_message)
