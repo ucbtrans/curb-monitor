@@ -26,25 +26,23 @@ paths:
       - name: "begin_day"
         in: "query"
         description: "starting day for detection occurance range in"
-        required: false
+        required: true
         type: "string"
       - name: "end_day"
         in: "query"
         description: "ending day for detection occurance range"
-        required: false
+        required: true
         type: "string"
       - name: "begin_time"
         in: "query"
         description: "starting time for detection occurance range"
-        required: false
+        required: true
         type: "string"
       - name: "end_time"
         in: "query"
         description: "ending time for detection occurance range"
-        required: false
+        required: true
         type: "string"
-      - name: "startingPosition"
-        in: "query"
       responses:
         "200":
           description: "successful operation"
@@ -133,18 +131,28 @@ paths:
       tags:
       - "detected objects"
       summary: "returns number of detected instances for each vehicle type during a certain time frame"
-      description: "Returns Detected vehicle objects based on multiple filters"
+      description: "Returns Detected vehicle objects based on multiple filters Date format : MM/DD/YY Month-Day-Year with leading zeros (02/17/2009) Time Format : hh:mm:ss (23:59:59)"
       produces:
       - "application/json"
       parameters:
-      - name: "start_time"
+      - name: "begin_day"
         in: "query"
-        description: "starting timestamp"
+        description: "starting time time period"
+        required: true
+        type: "string"
+      - name: "end_day"
+        in: "query"
+        description: "ending time time period"
+        required: true
+        type: "string"
+      - name: "begin_time"
+        in: "query"
+        description: "starting time time period"
         required: true
         type: "string"
       - name: "end_time"
         in: "query"
-        description: "ending timestamp"
+        description: "ending time time period"
         required: true
         type: "string"
       responses:
